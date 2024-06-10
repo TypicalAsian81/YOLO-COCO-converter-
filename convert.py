@@ -20,11 +20,9 @@ def convert_yolo_to_coco(yolo_dir, output_json):
         image_path = os.path.join(yolo_images_dir, image_file)
         label_path = os.path.join(yolo_labels_dir, label_file)
 
-        # Get image size
         with Image.open(image_path) as img:
             width, height = img.size
 
-        # Add image info to images list
         image_info = {
             "id": idx,
             "file_name": image_file,
@@ -33,7 +31,6 @@ def convert_yolo_to_coco(yolo_dir, output_json):
         }
         images.append(image_info)
 
-        # Read label file
         with open(label_path, 'r') as f:
             for line in f:
                 parts = line.strip().split()
@@ -46,16 +43,14 @@ def convert_yolo_to_coco(yolo_dir, output_json):
                 x_min = x_center - bbox_width / 2
                 y_min = y_center - bbox_height / 2
 
-                # Add category if not already present
                 if class_id not in category_set:
                     categories.append({
                         "id": class_id,
-                        "name": str(class_id),  # Modify this if you have class names
+                        "name": str(class_id), 
                         "supercategory": "none"
                     })
                     category_set.add(class_id)
 
-                # Add annotation info to annotations list
                 annotation_info = {
                     "id": annotation_id,
                     "image_id": idx,
@@ -67,19 +62,16 @@ def convert_yolo_to_coco(yolo_dir, output_json):
                 annotations.append(annotation_info)
                 annotation_id += 1
 
-    # Create the final COCO JSON structure
     coco_output = {
         "images": images,
         "annotations": annotations,
         "categories": categories
     }
 
-    # Ensure the output directory exists
     output_dir = os.path.dirname(output_json)
-    if output_dir:  # Only create if the directory part is not empty
+    if output_dir: 
         os.makedirs(output_dir, exist_ok=True)
 
-    # Save to JSON file
     with open(output_json, 'w') as f:
         json.dump(coco_output, f, indent=4)
 
